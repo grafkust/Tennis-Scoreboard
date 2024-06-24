@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>match-score</title>
+</head>
+<body>
+    <p th:text=" 'player 1: ' + ${player1.getName()}"></p>
+    <p th:text=" 'player 2: ' + ${player2.getName()}"></p>
+    <p th:text=" 'SCORE ' + ${currentMatch.getPlayer1Score()} + ' : ' + ${currentMatch.getPlayer2Score()}"></p>
+
+
+    <form method="post" th:action="@{'/match-score/'+ ${currentMatch.hashCode()}}" >
+        <button type="submit" name="playerId" th:value="${player1.id}">Player 1 won one point</button>
+    </form>
+
+    <form  method="post" th:action="@{'/match-score/'+ ${currentMatch.hashCode()}}">
+        <button type="submit" name="playerId" th:value="${player2.id}">Player 2 won one point</button>
+    </form>
+
+
+
+
+</body>
+</html>

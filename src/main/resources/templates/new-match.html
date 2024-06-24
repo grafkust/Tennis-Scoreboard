@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New-match</title>
+</head>
+<body>
+
+
+
+<form method="post" th:action="@{/new-match}">
+    <input type="text" name="player1" placeholder="Enter player1 name">
+    <input type="text" name="player2" placeholder="Enter player2 name">
+    <button type="submit">Start new match</button>
+</form>
+
+
+</body>
+</html>
