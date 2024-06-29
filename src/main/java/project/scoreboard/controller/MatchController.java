@@ -48,29 +48,34 @@ public class MatchController {
     public String get(@PathVariable(name = "uuid") String uid, Model model){
         Integer uuid = Integer.parseInt(uid);
         Match currentMatch = matches.get(uuid);
+
         model.addAttribute("player1", currentMatch.getPlayer1());
         model.addAttribute("player2", currentMatch.getPlayer2());
-        model.addAttribute("currentMatch", currentMatch);
+        model.addAttribute("player1Score", currentMatch.getPlayer1Score());
+        model.addAttribute("player2Score", currentMatch.getPlayer2Score());
+        model.addAttribute("uuid", currentMatch.hashCode());
 
         return "/match-score";
     }
 
 
     @PostMapping("/match-score/{uuid}")
-    public String score(@PathVariable(name = "uuid") String id,
-                        @RequestParam Integer playerId
+    public String score(@PathVariable(name = "uuid") String uuid,
+                        @RequestParam Integer scoreBallPlayerId
                         ){
-        Integer uuid = Integer.parseInt(id);
-        Match currentMatch = matches.get(uuid);
-        Integer[] score = scoreService.scorePoints(matches, playerId, currentMatch);
 
-        currentMatch.setPlayer1Score(score[0]);
-        currentMatch.setPlayer2Score(score[1]);
+        Match currentMatch = matches.get(Integer.parseInt(uuid));
+
+        scoreService.scorePoints(scoreBallPlayerId, currentMatch);
+
+        if (currentMatch.getWinner() != null) {
+            matches.remove(currentMatch.hashCode());
+            //Вернуть новое представление завершенного матча
+            return "redirect:/matches";
+        }
 
         return "redirect:/match-score/uuid={uuid}";
     }
-
-
 
 
     @GetMapping("/matches")

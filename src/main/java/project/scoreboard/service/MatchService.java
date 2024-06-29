@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.scoreboard.model.Match;
 import project.scoreboard.model.Player;
+import project.scoreboard.model.Score;
 import project.scoreboard.repository.MatchesRepository;
 import project.scoreboard.repository.PlayersRepository;
 
@@ -24,7 +25,7 @@ public class MatchService {
         this.matchesRepository = matchesRepository;
     }
 
-    private Player find (String name) {
+    private Player findOrSave(String name) {
         Optional<Player> player =  playersRepository.findByName(name);
         if (player.isPresent())
             return player.get();
@@ -35,21 +36,17 @@ public class MatchService {
         }
     }
 
-    @Transactional
-    public void save(Match match) {
-        matchesRepository.save(match);
-    }
 
     @Transactional
     public Match newMatch(String player1Name, String player2Name){
 
-        Player player1 = find(player1Name);
-        Player players2 = find(player2Name);
-        if (player1.equals(players2))
+        if (player1Name.equals(player2Name))
             throw new IllegalArgumentException();
 
-        return new Match(player1, players2,0,0);
+        Player player1 = findOrSave(player1Name);
+        Player players2 = findOrSave(player2Name);
 
+        return new Match(player1, players2,new Score(),new Score());
     }
 
     public List<Match> findAll(){
