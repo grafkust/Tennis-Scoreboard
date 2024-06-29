@@ -62,7 +62,7 @@ public class MatchController {
     @PostMapping("/match-score/{uuid}")
     public String score(@PathVariable(name = "uuid") String uuid,
                         @RequestParam Integer scoreBallPlayerId
-                        ){
+                        ) throws Exception {
 
         Match currentMatch = matches.get(Integer.parseInt(uuid));
 
