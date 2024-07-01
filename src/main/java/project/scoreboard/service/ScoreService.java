@@ -43,7 +43,8 @@ public class ScoreService {
 
         countSets(playerWonBall);
 
-        checkWinnerAndSaveGame(currentMatch, playerWonBall, scoredBallPlayer);
+        if (playerWonBall.getSet() == maxNumberOfSets)
+            appointWinnerAndSaveGame(currentMatch, scoredBallPlayer);
     }
 
     private boolean checkPlayer1WonBall (Match match, int scoredBallPlayerId){
@@ -181,12 +182,11 @@ public class ScoreService {
         }
     }
 
-    private void checkWinnerAndSaveGame (Match currentMatch, Score playerWonBall, Player winnerScorePlayer) {
+    private void appointWinnerAndSaveGame(Match currentMatch, Player winnerScorePlayer) {
 
-        if (playerWonBall.getSet() == maxNumberOfSets){
-            currentMatch.setWinner(winnerScorePlayer);
-            matchesRepository.save(currentMatch);
-        }
+       currentMatch.setWinner(winnerScorePlayer);
+       matchesRepository.save(currentMatch);
+
     }
 
 }
