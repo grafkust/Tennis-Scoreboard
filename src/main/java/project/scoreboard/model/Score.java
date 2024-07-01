@@ -11,9 +11,9 @@ public class Score {
 
     private Object point = 0;
 
-    private Integer game = 0;
+    private int game = 0;
 
-    private Integer set = 0;
+    private int set = 0;
 
 
 }

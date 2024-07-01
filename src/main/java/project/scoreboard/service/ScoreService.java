@@ -9,6 +9,8 @@ import project.scoreboard.model.Score;
 import project.scoreboard.repository.MatchesRepository;
 import project.scoreboard.repository.PlayersRepository;
 
+import java.util.HashMap;
+
 @Service
 @Transactional(readOnly = true)
 public class ScoreService {
@@ -18,6 +20,8 @@ public class ScoreService {
     private final PlayersRepository playersRepository;
 
     private boolean timeBreakNotGoing = true;
+    private final int maxNumberOfSets = 3;
+    private boolean noCountGamesAfterTimeBreak = false;
 
     public ScoreService(MatchesRepository matchesRepository, PlayersRepository playersRepository) {
         this.matchesRepository = matchesRepository;
@@ -25,64 +29,52 @@ public class ScoreService {
     }
 
     @Transactional
-    public void scorePoints(Integer scoreBallPlayerId, Match currentMatch) throws Exception {
+    public void keepScore(int scoredBallPlayerId, Match currentMatch){
 
-        Player playerWhoWinPoint = playersRepository.findById(scoreBallPlayerId).get();
+        Player scoredBallPlayer = playersRepository.findById(scoredBallPlayerId).get();
 
-        Score winnerScore = selectwinnerScore(scoreBallPlayerId, currentMatch);
-        Score looserScore = selectLooserScore(scoreBallPlayerId, currentMatch);
+        HashMap<String, Score> winnerAndLooserScores = getWinnerAndLooserScores(scoredBallPlayerId, currentMatch);
+        Score playerWonBall = winnerAndLooserScores.get("winnerScore");
+        Score playerLooseBall = winnerAndLooserScores.get("looserScore");
 
-        countPoints(winnerScore, looserScore);
+        countPoints(playerWonBall, playerLooseBall);
 
-        if (winnerScore.getPoint().equals(0) && timeBreakNotGoing) {
-            countGames(winnerScore, looserScore);
-        }
+        countGames(playerWonBall, playerLooseBall);
 
-//        if ( (winnerScore.getPoint().equals(0) && !timeBreakNotGoing) || winnerScore.getGame().equals(0)) {
-//            countSets(winnerScore);
-//            checkWinnerAndSaveGame(currentMatch, winnerScore.getGame(),playerWhoWinPoint);
-//        }
+        countSets(playerWonBall);
 
-
-
-
+        checkWinnerAndSaveGame(currentMatch, playerWonBall, scoredBallPlayer);
     }
 
-    private Score selectwinnerScore(Integer scoreBallPlayerId, Match currentMatch) {
+    private boolean checkPlayer1WonBall (Match match, int scoredBallPlayerId){
+        Integer player1Id = match.getPlayer1().getId();
+        return player1Id.equals(scoredBallPlayerId);
+    }
 
-        Integer player1Id = currentMatch.getPlayer1().getId();
-        if (player1Id.equals(scoreBallPlayerId))
-            return currentMatch.getPlayer1Score();
+    private HashMap<String, Score> getWinnerAndLooserScores (int scoreBallPlayerId, Match match) {
+        HashMap<String, Score> score = new HashMap<>();
+        if (checkPlayer1WonBall(match, scoreBallPlayerId)) {
+            score.put("winnerScore", match.getPlayer1Score());
+            score.put("looserScore", match.getPlayer2Score());
+        }
+        else {
+            score.put("winnerScore", match.getPlayer2Score());
+            score.put("looserScore", match.getPlayer1Score());
+        }
+        return score;
+    }
+
+    private void countPoints(Score playerWonBall, Score playerLooseBall)  {
+
+        if (timeBreakNotGoing)
+             countPointsWithoutTimeBreak(playerWonBall,playerLooseBall);     //+game
         else
-            return currentMatch.getPlayer2Score();
+             countPointsDuringTimeBreak(playerWonBall, playerLooseBall);         //+set
     }
 
-    private Score selectLooserScore(Integer scoreBallPlayerId, Match currentMatch) {
-
-        Integer player1Id = currentMatch.getPlayer1().getId();
-
-        if (player1Id.equals(scoreBallPlayerId))
-            return currentMatch.getPlayer2Score();
-        else
-            return currentMatch.getPlayer1Score();
-    }
-
-    private void countPoints(Score winnerPoints, Score loosePoints)  {
-
-        if (timeBreakNotGoing) {
-            //+game
-             countPointsWithoutTimeBreak(winnerPoints,loosePoints);
-        }
-        else if (!timeBreakNotGoing) {
-            //+set
-             countPointsByTimeBreak(winnerPoints, loosePoints);
-        }
-
-    }
-
-    private void countPointsWithoutTimeBreak(Score winnerScore, Score looseScore){
-        Object winnerPoints = winnerScore.getPoint();
-        Object loosePoints = looseScore.getPoint();
+    private void countPointsWithoutTimeBreak(Score playerWonBall, Score playerLooseBall){
+        Object winnerPoints = playerWonBall.getPoint();
+        Object loosePoints = playerLooseBall.getPoint();
 
         switch (String.valueOf(winnerPoints)) {
 
@@ -109,83 +101,93 @@ public class ScoreService {
                 winnerPoints = 0;
                 loosePoints = 0;    break;
             }
-
         }
-        winnerScore.setPoint(winnerPoints);
-        looseScore.setPoint(loosePoints);
+        playerWonBall.setPoint(winnerPoints);
+        playerLooseBall.setPoint(loosePoints);
     }
 
-    private void countPointsByTimeBreak (Score winnerScore, Score looseScore) {
+    private void countPointsDuringTimeBreak(Score playerWonBall, Score playerLooseBall) {
 
-        int winnerPoints = (Integer) winnerScore.getPoint();
-        int looserPoints = (Integer) looseScore.getPoint();
-        int difference = winnerPoints - looserPoints;
+        int winnerPoints = (Integer) playerWonBall.getPoint();
+        int looserPoints = (Integer) playerLooseBall.getPoint();
+        int pointsDifference = winnerPoints - looserPoints;
 
-        boolean winnerPointsIsEnough = winnerPoints >= 6;
-        boolean differenceBetweenPointsIsEnough = difference >=1;
-
-        if (winnerPoints < 6 || (winnerPointsIsEnough && !differenceBetweenPointsIsEnough) )
+        if (winnerPoints < 6 || ( winnerPointsIsEnough(winnerPoints) && !differenceBetweenPointsIsEnough(pointsDifference)) )
             winnerPoints +=1;
 
-        else if (winnerPointsIsEnough && differenceBetweenPointsIsEnough) {
+        else {
             winnerPoints = 0;
             looserPoints = 0;
             timeBreakNotGoing = true;
+            noCountGamesAfterTimeBreak = true;
         }
 
-        winnerScore.setPoint(winnerPoints);
-        looseScore.setPoint(looserPoints);
-
+        playerWonBall.setPoint(winnerPoints);
+        playerLooseBall.setPoint(looserPoints);
     }
 
-    private void countGames(Score winnerScore, Score looseScore) {
-
-        int winnerGames = winnerScore.getGame();
-        int looserGames = looseScore.getGame();
-
-        if (winnerGames < 5) {
-            winnerGames += 1;
-        }
-        else if (winnerGames == 5 && looserGames == 5 ) {
-            winnerGames +=1;
-        }
-        else if (winnerGames == 5 && looserGames == 6) {
-
-            winnerGames = 0;
-            looserGames = 0;
-            timeBreakNotGoing = false;
-        }
-
-        else if (winnerGames == 6 && looserGames == 5 || winnerGames == 5 ) {
-            winnerGames = 0;
-            looserGames = 0;
-        }
-
-        winnerScore.setGame(winnerGames);
-        looseScore.setGame(looserGames);
-
+    private boolean winnerPointsIsEnough(int winnerPoints){
+        return winnerPoints >= 6;
     }
 
-    private void countSets(Score winnerScore) {
-        int winnerSets = winnerScore.getSet();
-
-        winnerSets += 1;
-
-        winnerScore.setSet(winnerSets);
+    private boolean differenceBetweenPointsIsEnough(int pointsDifference) {
+        return pointsDifference >= 1;
     }
 
-    private void checkWinnerAndSaveGame (Match currentMatch, Integer winnerSets, Player winnerScorePlayer) {
+    private void countGames(Score playerWonBall, Score playerLooseBall) {
 
-        if (winnerSets == 3){
+        if (noCountGamesAfterTimeBreak)
+            return;
+
+        if (playerWonBall.getPoint().equals(0) && timeBreakNotGoing) {
+            int winnerGames = playerWonBall.getGame();
+            int looserGames = playerLooseBall.getGame();
+
+            if (winnerGames < 5) {
+                winnerGames += 1;
+            }
+            else if (winnerGames == 5 && looserGames == 5 ) {
+                winnerGames +=1;
+            }
+            else if (winnerGames == 5 && looserGames == 6) {
+                winnerGames = 0;
+                looserGames = 0;
+                timeBreakNotGoing = false;
+            }
+
+            else if (winnerGames == 6 && looserGames == 5 || winnerGames == 5 ) {
+                winnerGames = 0;
+                looserGames = 0;
+            }
+
+            playerWonBall.setGame(winnerGames);
+            playerLooseBall.setGame(looserGames);
+        }
+    }
+
+    private void countSets(Score playerWonBall) {
+
+        if (!timeBreakNotGoing)
+            return;
+
+        if ( (playerWonBall.getGame() == 0 && playerWonBall.getPoint().equals(0))) {
+
+            int winnerSets = playerWonBall.getSet();
+
+            winnerSets += 1;
+            noCountGamesAfterTimeBreak = false;
+
+            playerWonBall.setSet(winnerSets);
+        }
+    }
+
+    private void checkWinnerAndSaveGame (Match currentMatch, Score playerWonBall, Player winnerScorePlayer) {
+
+        if (playerWonBall.getSet() == maxNumberOfSets){
             currentMatch.setWinner(winnerScorePlayer);
             matchesRepository.save(currentMatch);
         }
     }
-
-
-
-
-
 
 }
 

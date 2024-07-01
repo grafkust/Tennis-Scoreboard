@@ -8,11 +8,12 @@
     <h2>All matches</h2>
 
     <div th:each="match : ${matches}">
-        <p th:text="${match.getPlayer1().name}"></p>
-        <p th:text="${match.getPlayer2().name}"></p>
+        <p th:text=" 'Player 1: '+ ${match.getPlayer1().name}"></p>
+        <p th:text=" 'Player 2: ' + ${match.getPlayer2().name}"></p>
         <p th:text=" 'Winner: ' + ${match.getWinner().name}"></p>
     </div>
     <hr>
+
     <a href="/new-match">Start new match</a>
 
 </body>

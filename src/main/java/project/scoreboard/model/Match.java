@@ -30,13 +30,11 @@ public class Match {
     @JoinColumn(name = "winner_id", referencedColumnName = "id")
     private Player winner;
 
-
     @Transient
     private Score player1Score;
 
     @Transient
     private Score player2Score;
-
 
     public Match(Player player1, Player player2, Score player1Score, Score player2Score) {
         this.player1 = player1;
@@ -44,8 +42,6 @@ public class Match {
         this.player1Score = player1Score;
         this.player2Score = player2Score;
     }
-
-
 
     @Override
     public int hashCode() {

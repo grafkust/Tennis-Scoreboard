@@ -5,36 +5,33 @@
     <title>match-score</title>
 </head>
 <body>
-    <p th:text=" 'player 1: ' + ${player1.getName()}"></p>
-    <p th:text=" 'player 2: ' + ${player2.getName()}"></p>
 
     <h3>SCORE</h3>
 
     <div>
-
-        <p th:text=" 'Sets:' + ${player1Score.set} "></p>
-        <p th:text=" 'Games:' + ${player1Score.game} "></p>
-        <p th:text=" 'Points:' + ${player1Score.point} "></p>
+        <p th:text=" 'player 1: ' + ${player1.getName()}"></p>
+        <p th:text=" 'Sets: ' + ${player1Score.set} "></p>
+        <p th:text=" 'Games: ' + ${player1Score.game} "></p>
+        <p th:text=" 'Points: ' + ${player1Score.point} "></p>
 
     </div>
 
     <div>
-
-        <p th:text=" 'Sets:' + ${player2Score.set} "></p>
-        <p th:text=" 'Games:' + ${player2Score.game} "></p>
-        <p th:text=" 'Points:' + ${player2Score.point} "></p>
+        <p th:text=" 'player 2: ' + ${player2.getName()}"></p>
+        <p th:text=" 'Sets: ' + ${player2Score.set} "></p>
+        <p th:text=" 'Games: ' + ${player2Score.game} "></p>
+        <p th:text=" 'Points: ' + ${player2Score.point} "></p>
 
     </div>
 
 
 
-
     <form method="post" th:action="@{'/match-score/'+ ${uuid}}" >
-        <button type="submit" name="scoreBallPlayerId" th:value="${player1.id}">Player 1 won one point</button>
+        <button type="submit" name="scoredBallPlayerId" th:value="${player1.id}">Player 1 won one point</button>
     </form>
 
     <form  method="post" th:action="@{'/match-score/'+ ${uuid}}">
-        <button type="submit" name="scoreBallPlayerId" th:value="${player2.id}">Player 2 won one point</button>
+        <button type="submit" name="scoredBallPlayerId" th:value="${player2.id}">Player 2 won one point</button>
     </form>
 
     <a href="/new-match">New match page</a>

@@ -38,7 +38,7 @@ public class MatchService {
 
 
     @Transactional
-    public Match newMatch(String player1Name, String player2Name){
+    public Match createNewMatch(String player1Name, String player2Name){
 
         if (player1Name.equals(player2Name))
             throw new IllegalArgumentException();
@@ -46,7 +46,7 @@ public class MatchService {
         Player player1 = findOrSave(player1Name);
         Player players2 = findOrSave(player2Name);
 
-        return new Match(player1, players2,new Score(),new Score());
+        return new Match(player1, players2, new Score(), new Score());
     }
 
     public List<Match> findAll(){

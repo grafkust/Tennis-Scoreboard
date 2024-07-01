@@ -16,8 +16,8 @@ import java.util.HashMap;
 public class MatchController {
 
     private final MatchService matchService;
-    private final HashMap<Integer,Match> matches = new HashMap<>();
     private final ScoreService scoreService;
+    private final HashMap<Integer,Match> matches = new HashMap<>();
 
     public MatchController(MatchService matchService, ScoreService scoreService) {
         this.matchService = matchService;
@@ -25,51 +25,49 @@ public class MatchController {
     }
 
     @GetMapping("/")
-    public String getMain(){
+    public String mainPage(){
         return "/main";
     }
 
     @GetMapping("/new-match")
-    public String getNew(){
+    public String startNewMatch (){
         return "/new-match";
     }
 
     @PostMapping("/new-match")
-    public String create(@RequestParam String player1,
-                         @RequestParam String player2){
+    public String startNewMatch (@RequestParam String player1,
+                                 @RequestParam String player2) {
 
-        Match newMatch = matchService.newMatch(player1, player2);
-        matches.put(newMatch.hashCode(),newMatch);
+        Match newMatch = matchService.createNewMatch(player1, player2);
+        int uuid = newMatch.hashCode();
+        matches.put(uuid, newMatch);
 
-        return "redirect:/match-score/uuid=" + newMatch.hashCode();
+        return "redirect:/match-score/uuid=" + uuid;
     }
 
     @GetMapping("/match-score/uuid={uuid}")
-    public String get(@PathVariable(name = "uuid") String uid, Model model){
-        Integer uuid = Integer.parseInt(uid);
-        Match currentMatch = matches.get(uuid);
+    public String matchScore (@PathVariable(name = "uuid") String uuid, Model model){
+
+        Match currentMatch = matches.get(Integer.parseInt(uuid));
 
         model.addAttribute("player1", currentMatch.getPlayer1());
         model.addAttribute("player2", currentMatch.getPlayer2());
         model.addAttribute("player1Score", currentMatch.getPlayer1Score());
         model.addAttribute("player2Score", currentMatch.getPlayer2Score());
-        model.addAttribute("uuid", currentMatch.hashCode());
+        model.addAttribute("uuid", uuid);
 
         return "/match-score";
     }
 
-
     @PostMapping("/match-score/{uuid}")
-    public String score(@PathVariable(name = "uuid") String uuid,
-                        @RequestParam Integer scoreBallPlayerId
-                        ) throws Exception {
+    public String matchScore (@PathVariable(name = "uuid") String uuid,
+                              @RequestParam int scoredBallPlayerId) {
 
         Match currentMatch = matches.get(Integer.parseInt(uuid));
-
-        scoreService.scorePoints(scoreBallPlayerId, currentMatch);
+        scoreService.keepScore(scoredBallPlayerId, currentMatch);
 
         if (currentMatch.getWinner() != null) {
-            matches.remove(currentMatch.hashCode());
+            matches.remove(Integer.parseInt(uuid));
             //Вернуть новое представление завершенного матча
             return "redirect:/matches";
         }
@@ -79,10 +77,12 @@ public class MatchController {
 
 
     @GetMapping("/matches")
-    public String all(Model model){
+    public String allMatches (Model model){
         model.addAttribute("matches", matchService.findAll());
         return "/matches";
     }
+
+
 
 
 
