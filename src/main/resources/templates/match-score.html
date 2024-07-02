@@ -3,25 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>match-score</title>
+    <link rel="stylesheet" th:href="@{/main.css}">
 </head>
 <body>
 
-    <h3>SCORE</h3>
 
-    <div>
-        <p th:text=" 'player 1: ' + ${player1.getName()}"></p>
-        <p th:text=" 'Sets: ' + ${player1Score.set} "></p>
-        <p th:text=" 'Games: ' + ${player1Score.game} "></p>
-        <p th:text=" 'Points: ' + ${player1Score.point} "></p>
 
-    </div>
+    <div class="scoreBoard">
 
-    <div>
-        <p th:text=" 'player 2: ' + ${player2.getName()}"></p>
-        <p th:text=" 'Sets: ' + ${player2Score.set} "></p>
-        <p th:text=" 'Games: ' + ${player2Score.game} "></p>
-        <p th:text=" 'Points: ' + ${player2Score.point} "></p>
+        <div class="block">
+            <h1>Players</h1>
+            <div class="contain">
+                <h2 th:text="${player1.name}"></h2>
+                <h2 th:text="${player2.name}"></h2>
+            </div>
 
+        </div>
+
+        <div class="block">
+            <h1>Sets</h1>
+            <div class="contain">
+                <h2 th:text="${player1Score.set}"></h2>
+                <h2 th:text="${player2Score.set}"></h2>
+            </div>
+
+        </div>
+
+        <div class="block">
+            <h1>Games</h1>
+            <div class="contain">
+                <h2 th:text="${player1Score.game}"></h2>
+                <h2 th:text="${player2Score.game}"></h2>
+            </div>
+
+        </div>
+
+        <div class="block">
+            <h1> Points</h1>
+            <div class="contain">
+                <h2 th:text="${player1Score.point}"></h2>
+                <h2 th:text="${player2Score.point}"></h2>
+            </div>
+        </div>
     </div>
 
 

@@ -31,7 +31,7 @@ public class ScoreService {
     @Transactional
     public void keepScore(int scoredBallPlayerId, Match currentMatch){
 
-        Player scoredBallPlayer = playersRepository.findById(scoredBallPlayerId).get();
+        Player scoredBallPlayer = playersRepository.findById(scoredBallPlayerId).orElse(new Player("test"));
 
         HashMap<String, Score> winnerAndLooserScores = getWinnerAndLooserScores(scoredBallPlayerId, currentMatch);
         Score playerWonBall = winnerAndLooserScores.get("winnerScore");
@@ -92,7 +92,7 @@ public class ScoreService {
                 }
                 else {
                     winnerPoints = "AD";
-                    loosePoints = "";
+                    loosePoints = " ";
                 } break;
             case "": {
                 winnerPoints = 40;
