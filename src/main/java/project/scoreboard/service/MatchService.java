@@ -25,18 +25,6 @@ public class MatchService {
         this.matchesRepository = matchesRepository;
     }
 
-    private Player findOrSave(String name) {
-        Optional<Player> player =  playersRepository.findByName(name);
-        if (player.isPresent())
-            return player.get();
-        else {
-            Player newPlayer = new Player(name);
-            playersRepository.save(newPlayer);
-            return newPlayer;
-        }
-    }
-
-
     @Transactional
     public Match createNewMatch(String player1Name, String player2Name){
 
@@ -47,6 +35,17 @@ public class MatchService {
         Player players2 = findOrSave(player2Name);
 
         return new Match(player1, players2, new Score(), new Score());
+    }
+
+    private Player findOrSave(String name) {
+        Optional<Player> player =  playersRepository.findByName(name);
+        if (player.isPresent())
+            return player.get();
+        else {
+            Player newPlayer = new Player(name);
+            playersRepository.save(newPlayer);
+            return newPlayer;
+        }
     }
 
     public List<Match> findAll(){

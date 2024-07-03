@@ -9,18 +9,18 @@ import lombok.Setter;
 @Entity
 @Table(name="Players")
 @NoArgsConstructor
+@Getter
 public class Player {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter @Setter
     private int id;
 
 
     @Column(name = "name")
     @NotBlank
-    @Getter @Setter
+     @Setter
     private String name;
 
     public Player(String name) {

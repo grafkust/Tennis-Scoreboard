@@ -15,14 +15,12 @@ import java.util.HashMap;
 @Transactional(readOnly = true)
 public class ScoreService {
 
-    @Autowired
     private final MatchesRepository matchesRepository;
     private final PlayersRepository playersRepository;
 
     private boolean timeBreakNotGoing = true;
-    private final int maxNumberOfSets = 3;
     private boolean noCountGamesAfterTimeBreak = false;
-
+    @Autowired
     public ScoreService(MatchesRepository matchesRepository, PlayersRepository playersRepository) {
         this.matchesRepository = matchesRepository;
         this.playersRepository = playersRepository;
@@ -30,6 +28,7 @@ public class ScoreService {
 
     @Transactional
     public void keepScore(int scoredBallPlayerId, Match currentMatch){
+        final int maxNumberOfSets = 3;
 
         Player scoredBallPlayer = playersRepository.findById(scoredBallPlayerId).orElse(new Player("test"));
 
@@ -70,7 +69,7 @@ public class ScoreService {
         if (timeBreakNotGoing)
              countPointsWithoutTimeBreak(playerWonBall,playerLooseBall);     //+game
         else
-             countPointsDuringTimeBreak(playerWonBall, playerLooseBall);         //+set
+             countPointsDuringTimeBreak(playerWonBall, playerLooseBall);     //+set
     }
 
     private void countPointsWithoutTimeBreak(Score playerWonBall, Score playerLooseBall){
@@ -183,10 +182,8 @@ public class ScoreService {
     }
 
     private void appointWinnerAndSaveGame(Match currentMatch, Player winnerScorePlayer) {
-
        currentMatch.setWinner(winnerScorePlayer);
        matchesRepository.save(currentMatch);
-
     }
 
 }

@@ -31,8 +31,4 @@ public class Score {
         return game == score.game && set == score.set && Objects.equals(point, score.point);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(point, game, set);
-    }
 }

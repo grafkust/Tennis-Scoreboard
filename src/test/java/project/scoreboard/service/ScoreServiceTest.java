@@ -1,4 +1,4 @@
-package project.scoreboard;
+package project.scoreboard.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,10 +11,9 @@ import project.scoreboard.model.Player;
 import project.scoreboard.model.Score;
 import project.scoreboard.repository.MatchesRepository;
 import project.scoreboard.repository.PlayersRepository;
-import project.scoreboard.service.ScoreService;
 
 @ExtendWith(MockitoExtension.class)
-class PointCounterTests {
+class ScoreServiceTest {
 
     @InjectMocks
     private ScoreService scoreService;
@@ -31,16 +30,16 @@ class PointCounterTests {
     public void keepScoreTestWithoutTimeBreak() {
 
         //Enter any starting score
-        Score winnerScore = new Score(0,0,0);
-        Score looserScore = new Score(0,0,0);
+        Score playerWonBall = new Score(0,0,0);
+        Score playerLooseBall = new Score(0,0,0);
 
-        Match match = new Match(winner,looser, winnerScore, looserScore);
+        Match match = new Match(winner,looser, playerWonBall, playerLooseBall);
 
         scoreService.keepScore(winner.getId(), match);
 
         //Enter score expected after goal
-        boolean winnerScoreIsCorrect = winnerScore.equals(new Score(15,0,0));
-        boolean looserScoreIsCorrect = looserScore.equals(new Score(0,0,0));
+        boolean winnerScoreIsCorrect = playerWonBall.equals(new Score(15,0,0));
+        boolean looserScoreIsCorrect = playerLooseBall.equals(new Score(0,0,0));
 
         Assertions.assertTrue(winnerScoreIsCorrect);
         Assertions.assertTrue(looserScoreIsCorrect);
@@ -49,36 +48,48 @@ class PointCounterTests {
     @Test
     public void keepScoreTestDuringTimeBreak(){
 
-        int winnerSets = 1;
+        int winnerSets = 0;
         int looserSets = 1;
 
         //Start timeBreak
-        Score winnerScore = new Score(40,5,winnerSets);
-        Score looserScore = new Score(15,6,looserSets);
+        Score playerWonBall = new Score(40,5,winnerSets);
+        Score playerLooseBall = new Score(15,6,looserSets);
 
-        Match match = new Match(winner,looser, winnerScore, looserScore);
+        Match match = new Match(winner,looser, playerWonBall, playerLooseBall);
 
         scoreService.keepScore(winner.getId(), match);
 
-        boolean timeBreakIsStartedByWinner = winnerScore.equals(new Score(0,0,winnerSets));
-        boolean timeBreakIsStartedBeLooser = looserScore.equals(new Score(0,0,looserSets));
+        boolean timeBreakIsStartedByWinner = playerWonBall.equals(new Score(0,0,winnerSets));
+        boolean timeBreakIsStartedBeLooser = playerLooseBall.equals(new Score(0,0,looserSets));
 
         Assertions.assertTrue(timeBreakIsStartedByWinner);
         Assertions.assertTrue(timeBreakIsStartedBeLooser);
 
         //Assign any pointsScore by TimeBreak
-        winnerScore.setPoint(1);
-        looserScore.setPoint(1);
+        int winnerPoints = 4;
+        int looserPoints = 1;
+
+        playerWonBall.setPoint(winnerPoints);
+        playerLooseBall.setPoint(looserPoints);
 
         scoreService.keepScore(winner.getId(), match);
 
-        boolean winnerScoreIsCorrect = winnerScore.equals(new Score(2,0,winnerSets));
-        boolean looserScoreIsCorrect = looserScore.equals(new Score(1,0,looserSets));
+        boolean winnerScoreIsCorrect;
+        boolean looserScoreIsCorrect;
+        boolean timeBreakAfterGoalIsGoing = !playerWonBall.getPoint().equals(0);
+
+        if (timeBreakAfterGoalIsGoing) {
+            winnerScoreIsCorrect = playerWonBall.equals(new Score(winnerPoints + 1,0,winnerSets));
+            looserScoreIsCorrect = playerLooseBall.equals(new Score(looserPoints,0,looserSets));
+        }
+        else {
+            winnerScoreIsCorrect = playerWonBall.equals(new Score(0,0,winnerSets + 1));
+            looserScoreIsCorrect = playerLooseBall.equals(new Score(0,0,looserSets));
+        }
 
         Assertions.assertTrue(winnerScoreIsCorrect);
         Assertions.assertTrue(looserScoreIsCorrect);
     }
-
 
 
 
