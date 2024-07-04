@@ -10,17 +10,16 @@ import lombok.Setter;
 @Table(name="Players")
 @NoArgsConstructor
 @Getter
-public class Player {
+public class Player{
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-
     @Column(name = "name")
     @NotBlank
-     @Setter
+    @Setter
     private String name;
 
     public Player(String name) {

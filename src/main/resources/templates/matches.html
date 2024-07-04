@@ -8,6 +8,11 @@
 <body>
     <h2>All matches</h2>
 
+    <form method="get" th:action="@{/matches}">
+        <input type="text" name="filter_by_player_name" placeholder="Enter player name">
+        <button type="submit" name="page" value="0">Find match by player name</button>
+    </form>
+
     <div th:each="match : ${matches}" class="match">
         <p th:text=" 'Player 1: '+ ${match.getPlayer1().name}"></p>
         <p th:text=" 'Player 2: ' + ${match.getPlayer2().name}"></p>

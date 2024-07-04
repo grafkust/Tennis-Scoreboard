@@ -29,6 +29,12 @@ form textarea {
     border: silver 2px solid;
 }
 
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
 form button, .edit-btn {
     margin-top: 20px;
     padding: 10px 25px;

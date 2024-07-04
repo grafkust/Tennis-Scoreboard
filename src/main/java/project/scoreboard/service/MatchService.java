@@ -1,6 +1,7 @@
 package project.scoreboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.scoreboard.model.Match;
@@ -51,6 +52,14 @@ public class MatchService {
     public List<Match> findAll(){
         return matchesRepository.findAll();
     }
+
+    public List<Match> findByPagination(int page, String playerName) {
+        return matchesRepository.findByPlayer1_NameOrPlayer2_Name(playerName, playerName, PageRequest.of(page, 5));
+    }
+
+
+
+
 
 
 }

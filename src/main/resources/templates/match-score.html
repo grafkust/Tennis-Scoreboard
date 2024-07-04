@@ -7,8 +7,6 @@
 </head>
 <body>
 
-
-
     <div class="scoreBoard">
 
         <div class="block">
@@ -45,20 +43,25 @@
                 <h2 th:text="${player2Score.point}"></h2>
             </div>
         </div>
+
     </div>
 
 
+    <div class="buttons">
+        <div class="but">
+            <form method="post" th:action="@{'/match-score/'+ ${uuid}}" >
+                <button type="submit" name="scoredBallPlayerId" th:value="${player1.id}" th:text="${player1.name + ' won one point'}"></button>
+            </form>
+        </div>
 
-    <form method="post" th:action="@{'/match-score/'+ ${uuid}}" >
-        <button type="submit" name="scoredBallPlayerId" th:value="${player1.id}">Player 1 won one point</button>
-    </form>
+        <div class="but">
+            <form  method="post" th:action="@{'/match-score/'+ ${uuid}}">
+                <button type="submit" name="scoredBallPlayerId" th:value="${player2.id}" th:text="${player2.name + ' won one point'}"></button>
+            </form>
+        </div>
+    </div>
 
-    <form  method="post" th:action="@{'/match-score/'+ ${uuid}}">
-        <button type="submit" name="scoredBallPlayerId" th:value="${player2.id}">Player 2 won one point</button>
-    </form>
-
-    <a href="/new-match">New match page</a>
-
+    <a href="/new-match">Start new match</a>
 
 
 

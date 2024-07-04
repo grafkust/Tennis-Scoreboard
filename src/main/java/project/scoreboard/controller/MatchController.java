@@ -30,15 +30,23 @@ public class MatchController {
     }
 
     @GetMapping("/new-match")
-    public String startNewMatch (){
+    public String startNewMatch (@RequestParam (name = "error", required = false) String error, Model model){
+
+        if (error.equals("true"))
+            model.addAttribute("errorMessage", "Player's names should be unique");
+
         return "/new-match";
     }
 
-    @PostMapping("/new-match")
-    public String startNewMatch (@RequestParam String player1,
-                                 @RequestParam String player2) {
 
-        Match newMatch = matchService.createNewMatch(player1, player2);
+    @PostMapping("/new-match")
+    public String startNewMatch (@RequestParam String player1Name,
+                                 @RequestParam String player2Name) {
+
+        if (player1Name.equals(player2Name))
+            return "redirect:/new-match?error=true";
+
+        Match newMatch = matchService.createNewMatch(player1Name, player2Name);
         int uuid = newMatch.hashCode();
         matches.put(uuid, newMatch);
 
@@ -61,35 +69,43 @@ public class MatchController {
 
     @PostMapping("/match-score/{uuid}")
     public String matchScore (@PathVariable(name = "uuid") String uuid,
-                              @RequestParam int scoredBallPlayerId) {
+                              @RequestParam int scoredBallPlayerId, Model model) {
 
         Match currentMatch = matches.get(Integer.parseInt(uuid));
         scoreService.keepScore(scoredBallPlayerId, currentMatch);
 
         if (currentMatch.getWinner() != null) {
-            matches.remove(Integer.parseInt(uuid));
-            //Вернуть новое представление завершенного матча
-            return "redirect:/matches";
-        }
+            model.addAttribute("player1Name", currentMatch.getPlayer1().getName());
+            model.addAttribute("player2Name", currentMatch.getPlayer2().getName());
+            model.addAttribute("player1Sets", currentMatch.getPlayer1Score().getSet());
+            model.addAttribute("player2Sets", currentMatch.getPlayer2Score().getSet());
+            model.addAttribute("winnerName", currentMatch.getWinner().getName());
 
+            matches.remove(Integer.parseInt(uuid));
+            return "/final-score";
+        }
         return "redirect:/match-score/uuid={uuid}";
     }
 
-
     @GetMapping("/matches")
-    public String allMatches (Model model){
-        model.addAttribute("matches", matchService.findAll());
+    public String allMatches (Model model,
+                              @RequestParam(value = "filter_by_player_name", required = false) String playerName,
+                              @RequestParam(value = "page", required = false) Integer page) {
+        if (playerName == null || page == null)
+            model.addAttribute("matches", matchService.findAll());
+        else
+            model.addAttribute("matches", matchService.findByPagination(page, playerName));
+
         return "/matches";
     }
 
+
     //TODO
-    //Нет пагинации и поиска по имени игрока
-    //"спрыгивает пустота" при AD
-    //разнести кнопки на одну прямую
-    //нет деплоя
-    //нет обработки ошибок на 2 одинаковых имени Обработчик исключений для MVCs application
-    //добавить рендер финального счета после окончания матча
     //сделать миграционную базу данных
+    //нет деплоя
+
+
+
 
 
 

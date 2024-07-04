@@ -30,15 +30,15 @@ class ScoreServiceTest {
     public void keepScoreTestWithoutTimeBreak() {
 
         //Enter any starting score
-        Score playerWonBall = new Score(0,0,0);
-        Score playerLooseBall = new Score(0,0,0);
+        Score playerWonBall = new Score("AD",0,0);
+        Score playerLooseBall = new Score(30,0,0);
 
         Match match = new Match(winner,looser, playerWonBall, playerLooseBall);
 
         scoreService.keepScore(winner.getId(), match);
 
         //Enter score expected after goal
-        boolean winnerScoreIsCorrect = playerWonBall.equals(new Score(15,0,0));
+        boolean winnerScoreIsCorrect = playerWonBall.equals(new Score(0,1,0));
         boolean looserScoreIsCorrect = playerLooseBall.equals(new Score(0,0,0));
 
         Assertions.assertTrue(winnerScoreIsCorrect);

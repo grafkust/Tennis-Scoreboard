@@ -45,6 +45,8 @@ public class Match {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, player1, player2);
+        int uuid = Objects.hash(id, player1, player2) / 10000;
+
+        return (uuid > 0) ? uuid : -uuid;
     }
 }

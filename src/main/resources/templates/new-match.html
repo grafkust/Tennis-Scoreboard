@@ -8,10 +8,10 @@
 <body>
 
 
-
+<p th:text="${errorMessage}" style="color: red"></p>
 <form method="post" th:action="@{/new-match}">
-    <input type="text" name="player1" placeholder="Enter player 1 name">
-    <input type="text" name="player2" placeholder="Enter player 2 name">
+    <input type="text" name="player1Name" placeholder="Enter player 1 name">
+    <input type="text" name="player2Name" placeholder="Enter player 2 name">
     <button type="submit">Start new match</button>
 </form>
 

@@ -85,18 +85,15 @@ public class ScoreService {
             case "30":
                 winnerPoints = 40;  break;
             case "40":
-                if (!loosePoints.equals(40)) {
+                if (loosePoints.equals(40))
+                    winnerPoints = "AD";
+                else if (loosePoints.equals("AD"))
+                    loosePoints = 40;
+                else {
                     winnerPoints = 0;
                     loosePoints = 0;
                 }
-                else {
-                    winnerPoints = "AD";
-                    loosePoints = " ";
-                } break;
-            case "": {
-                winnerPoints = 40;
-                loosePoints = 40;   break;
-            }
+                break;
             case "AD": {
                 winnerPoints = 0;
                 loosePoints = 0;    break;
