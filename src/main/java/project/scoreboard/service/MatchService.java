@@ -32,6 +32,7 @@ public class MatchService {
         if (player1Name.equals(player2Name))
             throw new IllegalArgumentException();
 
+
         Player player1 = findOrSave(player1Name);
         Player players2 = findOrSave(player2Name);
 
@@ -56,6 +57,8 @@ public class MatchService {
     public List<Match> findByPagination(int page, String playerName) {
         return matchesRepository.findByPlayer1_NameOrPlayer2_Name(playerName, playerName, PageRequest.of(page, 5));
     }
+
+
 
 
 

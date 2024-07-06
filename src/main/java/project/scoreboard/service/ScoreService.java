@@ -18,8 +18,8 @@ public class ScoreService {
     private final MatchesRepository matchesRepository;
     private final PlayersRepository playersRepository;
 
-    private boolean timeBreakNotGoing = true;
-    private boolean noCountGamesAfterTimeBreak = false;
+    protected boolean timeBreakNotGoing = true;
+    protected boolean noCountGamesAfterTimeBreak = false;
     @Autowired
     public ScoreService(MatchesRepository matchesRepository, PlayersRepository playersRepository) {
         this.matchesRepository = matchesRepository;
@@ -27,7 +27,7 @@ public class ScoreService {
     }
 
     @Transactional
-    public void keepScore(int scoredBallPlayerId, Match currentMatch){
+    public void keepScoreAfterGoal(int scoredBallPlayerId, Match currentMatch){
         final int maxNumberOfSets = 3;
 
         Player scoredBallPlayer = playersRepository.findById(scoredBallPlayerId).orElse(new Player("test"));

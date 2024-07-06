@@ -72,7 +72,7 @@ public class MatchController {
                               @RequestParam int scoredBallPlayerId, Model model) {
 
         Match currentMatch = matches.get(Integer.parseInt(uuid));
-        scoreService.keepScore(scoredBallPlayerId, currentMatch);
+        scoreService.keepScoreAfterGoal(scoredBallPlayerId, currentMatch);
 
         if (currentMatch.getWinner() != null) {
             model.addAttribute("player1Name", currentMatch.getPlayer1().getName());

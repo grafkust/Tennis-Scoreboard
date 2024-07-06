@@ -15,81 +15,197 @@ import project.scoreboard.repository.PlayersRepository;
 @ExtendWith(MockitoExtension.class)
 class ScoreServiceTest {
 
-    @InjectMocks
-    private ScoreService scoreService;
-
     @Mock
     private  MatchesRepository matchesRepository;
     @Mock
     private  PlayersRepository playersRepository;
 
-    private final Player winner = new Player("winnerPlayer");
-    private final Player looser = new Player("looserPlayer");
+    @InjectMocks
+    private ScoreService scoreService;
+
+    private final Player player1 = new Player("PlayerNameOne");
+    private final Player player2 = new Player("PlayerNameTwo");
 
     @Test
-    public void keepScoreTestWithoutTimeBreak() {
+    public void assignPointsWith0ScoreTest() {
 
-        //Enter any starting score
-        Score playerWonBall = new Score("AD",0,0);
+        Score playerWonBall = new Score(0,0,0);
         Score playerLooseBall = new Score(30,0,0);
 
-        Match match = new Match(winner,looser, playerWonBall, playerLooseBall);
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
 
-        scoreService.keepScore(winner.getId(), match);
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
 
-        //Enter score expected after goal
-        boolean winnerScoreIsCorrect = playerWonBall.equals(new Score(0,1,0));
-        boolean looserScoreIsCorrect = playerLooseBall.equals(new Score(0,0,0));
-
-        Assertions.assertTrue(winnerScoreIsCorrect);
-        Assertions.assertTrue(looserScoreIsCorrect);
+        Assertions.assertEquals(new Score(15,0,0), playerWonBall);
+        Assertions.assertEquals(new Score(30,0,0), playerLooseBall);
     }
 
     @Test
-    public void keepScoreTestDuringTimeBreak(){
+    public void assignPointsWith15ScoreTest() {
+
+        Score playerWonBall = new Score(15,0,0);
+        Score playerLooseBall = new Score(30,0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(30,0,0), playerWonBall);
+        Assertions.assertEquals(new Score(30,0,0), playerLooseBall);
+    }
+
+    @Test
+    public void assignPointsWith30ScoreTest() {
+
+        Score playerWonBall = new Score(30,0,0);
+        Score playerLooseBall = new Score(30,0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(40,0,0), playerWonBall);
+        Assertions.assertEquals(new Score(30,0,0), playerLooseBall);
+    }
+
+
+    @Test
+    public void assignAdvantageTest() {
+        Score playerWonBall = new Score(40,0,0);
+        Score playerLooseBall = new Score(40,0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score("AD",0,0), playerWonBall);
+        Assertions.assertEquals(new Score(40,0,0), playerLooseBall);
+    }
+
+    @Test
+    public void assignGameWithAdvantageTest() {
+        Score playerWonBall = new Score("AD",0,0);
+        Score playerLooseBall = new Score(40,0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(0,1,0), playerWonBall);
+        Assertions.assertEquals(new Score(0,0,0), playerLooseBall);
+    }
+
+    @Test
+    public void assignPointsWhenOpponentHasAdvantageTest() {
+        Score playerWonBall = new Score(40,0,0);
+        Score playerLooseBall = new Score("AD",0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(40,0,0), playerWonBall);
+        Assertions.assertEquals(new Score(40,0,0), playerLooseBall);
+    }
+
+    @Test
+    public void assignGameTest() {
+        Score playerWonBall = new Score(40,0,0);
+        Score playerLooseBall = new Score(30,0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(0,1,0), playerWonBall);
+        Assertions.assertEquals(new Score(0,0,0), playerLooseBall);
+    }
+
+    @Test
+    public void assignGameWhenScore5_5Test(){
+        int winnerGames = 5;
+        int looserGames = 5;
+
+        Score playerWonBall = new Score(40,winnerGames,0);
+        Score playerLooseBall = new Score(30,looserGames,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(0,winnerGames + 1,0), playerWonBall);
+        Assertions.assertEquals(new Score(0,looserGames,0), playerLooseBall);
+    }
+
+    @Test
+    public void startTimeBreakTest(){
+        Score playerWonBall = new Score(40,5,0);
+        Score playerLooseBall = new Score(15,6,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertFalse(scoreService.timeBreakNotGoing);
+    }
+
+    @Test
+    public void assignPointsDuringTimeBreakTest(){
+
+        scoreService.timeBreakNotGoing = false;
+        scoreService.noCountGamesAfterTimeBreak = true;
+
+        int winnerPoints = 4;
+        int looserPoints = 1;
+
+        Score playerWonBall = new Score(winnerPoints,0,0);
+        Score playerLooseBall = new Score(looserPoints,0,0);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(winnerPoints + 1,0,0), playerWonBall);
+        Assertions.assertEquals(new Score(looserPoints,0,0), playerLooseBall);
+    }
+
+    @Test
+    public void assignSetsAfterTimeBreakTest(){
+
+        scoreService.timeBreakNotGoing = false;
+        scoreService.noCountGamesAfterTimeBreak = true;
 
         int winnerSets = 0;
         int looserSets = 1;
 
-        //Start timeBreak
-        Score playerWonBall = new Score(40,5,winnerSets);
-        Score playerLooseBall = new Score(15,6,looserSets);
+        Score playerWonBall = new Score(6,0,winnerSets);
+        Score playerLooseBall = new Score(1,0,looserSets);
 
-        Match match = new Match(winner,looser, playerWonBall, playerLooseBall);
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
 
-        scoreService.keepScore(winner.getId(), match);
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
 
-        boolean timeBreakIsStartedByWinner = playerWonBall.equals(new Score(0,0,winnerSets));
-        boolean timeBreakIsStartedBeLooser = playerLooseBall.equals(new Score(0,0,looserSets));
-
-        Assertions.assertTrue(timeBreakIsStartedByWinner);
-        Assertions.assertTrue(timeBreakIsStartedBeLooser);
-
-        //Assign any pointsScore by TimeBreak
-        int winnerPoints = 4;
-        int looserPoints = 1;
-
-        playerWonBall.setPoint(winnerPoints);
-        playerLooseBall.setPoint(looserPoints);
-
-        scoreService.keepScore(winner.getId(), match);
-
-        boolean winnerScoreIsCorrect;
-        boolean looserScoreIsCorrect;
-        boolean timeBreakAfterGoalIsGoing = !playerWonBall.getPoint().equals(0);
-
-        if (timeBreakAfterGoalIsGoing) {
-            winnerScoreIsCorrect = playerWonBall.equals(new Score(winnerPoints + 1,0,winnerSets));
-            looserScoreIsCorrect = playerLooseBall.equals(new Score(looserPoints,0,looserSets));
-        }
-        else {
-            winnerScoreIsCorrect = playerWonBall.equals(new Score(0,0,winnerSets + 1));
-            looserScoreIsCorrect = playerLooseBall.equals(new Score(0,0,looserSets));
-        }
-
-        Assertions.assertTrue(winnerScoreIsCorrect);
-        Assertions.assertTrue(looserScoreIsCorrect);
+        Assertions.assertEquals(new Score(0,0,winnerSets + 1), playerWonBall);
+        Assertions.assertEquals(new Score(0,0,looserSets), playerLooseBall);
     }
+
+    @Test
+    public void assignSetsTest(){
+        int winnerSets = 0;
+        int looserSets = 1;
+
+        Score playerWonBall = new Score(40,5,winnerSets);
+        Score playerLooseBall = new Score(15,4,looserSets);
+
+        Match match = new Match(player1, player2, playerWonBall, playerLooseBall);
+
+        scoreService.keepScoreAfterGoal(player1.getId(), match);
+
+        Assertions.assertEquals(new Score(0,0,winnerSets + 1), playerWonBall);
+        Assertions.assertEquals(new Score(0,0,looserSets), playerLooseBall);
+    }
+
+
 
 
 
