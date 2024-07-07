@@ -10,8 +10,6 @@ import java.util.List;
 @Repository
 public interface MatchesRepository extends JpaRepository<Match, Integer> {
 
-
-
     List <Match> findByPlayer1_NameOrPlayer2_Name (String name1, String name2, PageRequest pageRequest);
 
 

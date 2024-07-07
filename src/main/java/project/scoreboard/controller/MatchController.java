@@ -46,7 +46,7 @@ public class MatchController {
         if (player1Name.equals(player2Name))
             return "redirect:/new-match?error=true";
 
-        Match newMatch = matchService.createNewMatch(player1Name, player2Name);
+        Match newMatch = matchService.createNew(player1Name, player2Name);
         int uuid = newMatch.hashCode();
         matches.put(uuid, newMatch);
 
@@ -99,10 +99,6 @@ public class MatchController {
         return "/matches";
     }
 
-
-    //TODO
-    //сделать миграционную базу данных
-    //нет деплоя
 
 
 

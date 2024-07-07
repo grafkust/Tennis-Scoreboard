@@ -8,6 +8,4 @@ import java.util.Optional;
 public interface PlayersRepository extends JpaRepository<Player, Integer> {
         Optional<Player> findByName(String name);
 
-
-
 }

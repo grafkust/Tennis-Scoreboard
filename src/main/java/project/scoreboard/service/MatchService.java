@@ -27,19 +27,19 @@ public class MatchService {
     }
 
     @Transactional
-    public Match createNewMatch(String player1Name, String player2Name){
+    public Match createNew(String player1Name, String player2Name){
 
         if (player1Name.equals(player2Name))
             throw new IllegalArgumentException();
 
 
-        Player player1 = findOrSave(player1Name);
-        Player players2 = findOrSave(player2Name);
+        Player player1 = findOrSavePlayer(player1Name);
+        Player players2 = findOrSavePlayer(player2Name);
 
         return new Match(player1, players2, new Score(), new Score());
     }
 
-    private Player findOrSave(String name) {
+    private Player findOrSavePlayer(String name) {
         Optional<Player> player =  playersRepository.findByName(name);
         if (player.isPresent())
             return player.get();
