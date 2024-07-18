@@ -17,10 +17,6 @@
 - Hibernate
 - MySQL
 - JUnit 5
-## Недостатки реализации
-- Не реализован deploy на удаленный сервер
-- Отсутствует качественный frontend 
-
 ### Автор проекта
 [grafkust](https://t.me/grafkust)
 
